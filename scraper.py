@@ -42,15 +42,9 @@ for newspage in newspages:
             website = "BBC World News"
 
             try:
-                headline = container.h3.text
+                headline = container.text.strip()
             except:
                 headline = ""
-
-            if headline == "":
-                try:
-                    headline = container.text.strip()
-                except:
-                    headline = ""
 
             f.write(website + "," + headline.replace(",", "|").replace("Video", "(Video) ") + "\n")
 
@@ -92,7 +86,7 @@ for newspage in newspages:
                 try:
                     headline = container.a.h2.text
                 except:
-                    headline = ""
+                    pass
 
             f.write(website + "," + headline.replace(",", "|") + "\n")
 
@@ -130,9 +124,7 @@ for newspage in newspages:
             except:
                 headline = ""
 
-            f.write(website + "," + headline.replace(",", "|") + "\n")
-
-            
+            f.write(website + "," + headline.replace(",", "|") + "\n")   
     
     index +=1
 
