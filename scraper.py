@@ -1,10 +1,11 @@
 import datetime
 import urllib.request as request
+from pathlib import Path
 from bs4 import BeautifulSoup as soup
 
 # setup the file
 date = datetime.datetime.now().strftime("%A, %d, %b, %Y")
-filename = "DailyHeadlines - " + date + ".csv"
+filename = Path("Outputs/DailyHeadlines - " + date + ".csv")
 f = open(filename, "w")
 
 headers = "Website, Headline\n"
