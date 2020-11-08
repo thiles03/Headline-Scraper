@@ -5,7 +5,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup as soup
 
 # setup the file
-date = datetime.datetime.now().strftime("%A, %d, %b, %Y")
+date = datetime.datetime.now().strftime("%d, %A, %b, %Y")
 folder = datetime.datetime.now().strftime("%Y %b")
 filepath = Path("Outputs/" + folder)
 
