@@ -1,7 +1,7 @@
 import os
 import datetime
-import urllib.request as request
 from pathlib import Path
+from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup as soup
 
 # setup the file
@@ -23,14 +23,18 @@ newspages = ["https://www.bbc.com/news/world", # BBC
 "https://www.reuters.com/", # Reutuers
 "https://www.nytimes.com/section/world", # NYT
 "https://www.theguardian.com/world", # Guardian
-"https://www.rt.com/news/"] # RT
+"https://www.rt.com/news/", # RT
+"https://www.wsj.com/news/world"] # WSJ
 
 index = 0
 
 for newspage in newspages:
 
     # open a connection and grab the page
-    uClient = request.urlopen(newspages[index])
+
+    req = Request(newspages[index], headers={'User-Agent': 'Mozilla/5.0'})
+
+    uClient = urlopen(req)
     htmlPage = uClient.read()
     uClient.close()
 
@@ -105,13 +109,18 @@ for newspage in newspages:
             try:
                 headline = container.h2.a.text
             except:
-                headline = ""
-
-            if headline == "":
                 try:
                     headline = container.a.h2.text
                 except:
-                    pass
+                    passheadline = "null"
+
+            try:
+                link = "=HYPERLINK(\"https://www.nytimes.com" + container.h2.a.get("href") + "\")"
+            except:
+                try:
+                    link = "=HYPERLINK(\"https://www.nytimes.com" + container.a.get("href") + "\")"
+                except:
+                    link = "null"            
 
             f.write(website + "," + headline.replace(",", "|") + "," + link + "\n")
 
@@ -129,7 +138,13 @@ for newspage in newspages:
             try:
                 headline = container.a.text.strip()
             except:
-                headline = ""
+                headline = "null"
+
+            try:
+                link = "=HYPERLINK(\"" + container.a.get("href") + "\")"
+            except:
+                link = "null"
+
 
             f.write(website + "," + headline.replace(",", "|").replace("\n", "") + "," + link + "\n")
 
@@ -147,10 +162,51 @@ for newspage in newspages:
             try:
                 headline = container.a.text.strip()
             except:
-                headline = ""
+                headline = "null"
 
-            f.write(website + "," + headline.replace(",", "|") + "," + link + "\n")   
-    
+            try:
+                link = "=HYPERLINK(\"https://www.rt.com" + container.a.get("href") + "\")"
+            except:
+                link = "null"
+
+            f.write(website + "," + headline.replace(",", "|") + "," + link + "\n")
+
+    # check for WSJ
+    if index == 5:
+
+        # grab each headline container
+        containers = soupPage.findAll("div", {"class":"WSJTheme--headline--7VCzo7Ay"})
+        containers.extend(soupPage.findAll("a", {"class":"style--link--1n1ZR5I9"}))
+
+        # write the headline and link to .csv
+        for container in containers:
+
+            website = "Wall Street Journal"
+            
+            try:
+                headline = container.h2.a.text
+            except:
+                try:
+                   headline = container.h3.a.text
+                except:
+                    try:
+                        headline = container.h3.span.text.strip()
+                    except:
+                        headline = "null"
+
+            try:
+                link = "=HYPERLINK(\"" + container.h2.a.get("href") + "\")"
+            except:
+                try:
+                    link = "=HYPERLINK(\"" + container.h3.a.get("href") + "\")"
+                except:
+                    try:
+                        link = "=HYPERLINK(\"" + container.get("href") + "\")"
+                    except:
+                        link = "null"
+
+            f.write(website + "," + headline.replace(",", "|") + "," + link + "\n")
+
     index +=1
 
 f.close()
