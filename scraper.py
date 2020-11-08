@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup as soup
 
 # setup the file
 date = datetime.datetime.now().strftime("%d, %A, %b, %Y")
-folder = datetime.datetime.now().strftime("%Y %b")
+folder = datetime.datetime.now().strftime("%Y %m%b")
 filepath = Path("Outputs/" + folder)
 
 if not os.path.exists(filepath):
@@ -20,7 +20,7 @@ f.write(headers)
 
 # array of websites to scrape
 newspages = ["https://www.bbc.com/news/world", # BBC
-"https://edition.cnn.com/world", # CNN
+"https://www.reuters.com/", # Reutuers
 "https://www.nytimes.com/section/world", # NYT
 "https://www.theguardian.com/world", # Guardian
 "https://www.rt.com/news/"] # RT
@@ -40,10 +40,10 @@ for newspage in newspages:
     # check for BBC
     if index == 0:
 
-        # grab each headline
+        # grab each headline container
         containers = soupPage.findAll("a", {"class":"gs-c-promo-heading"})
 
-        # write the headline to .csv file
+        # write the headline and link to .csv
         for container in containers:
 
             website = "BBC World News"
@@ -51,35 +51,53 @@ for newspage in newspages:
             try:
                 headline = container.text.strip()
             except:
-                headline = ""
+                headline = "null"
 
-            f.write(website + "," + headline.replace(",", "|").replace("Video", "(Video) ") + "\n")
+            try:
+                link = "=HYPERLINK(\"https://www.bbc.com" + container.get("href") + "\")"
+            except:
+                link = "null"
 
-    #check for CNN
+            f.write(website + "," + headline.replace(",", "|").replace("Video", "(Video) ") + "," + link + "\n")
+
+    #check for Reutuers
     if index == 1:
 
-        # grab each headline
-        containers = soupPage.findAll("h3", {"class":"cd__headline"}) # not finding all
+        # grab each headline container
+        containers = soupPage.findAll("h3", {"class":"article-heading"})
+        containers.extend(soupPage.findAll("div", {"class":"story-content"}))
+        containers.extend(soupPage.findAll("article", {"class":"story-content"}))
 
-        # write the headline to .csv file
+        # write the headline and link to .csv
         for container in containers:
 
-            website = "CNN World News"
+            website = "Reutuers"
             
             try:
-                headline = container.a.span.text
+                headline = container.a.h3.text
             except:
-                headline = ""
+                try:
+                    headline = container.h3.a.text
+                except:
+                    try:
+                        headline = container.a.text
+                    except:
+                        headline = "null"
 
-            f.write(website + "," + headline.replace(",", "|") + "\n")
+            try:
+                link = "=HYPERLINK(\"https://www.reuters.com" + container.a.get("href") + "\")"
+            except:
+                link = "null"
+
+            f.write(website + "," + headline.replace(",", "|").replace("\n", "") + "," + link + "\n")
 
     # check for NYT
     if index == 2:
 
-        # grab each headline
+        # grab each headline container
         containers = soupPage.findAll("div", {"class":["css-10wtrbd","css-1l4spti"]})
 
-        # write the headline to .csv file
+        # write the headline and link to .csv
         for container in containers:
 
             website = "The New York Times"
@@ -95,15 +113,15 @@ for newspage in newspages:
                 except:
                     pass
 
-            f.write(website + "," + headline.replace(",", "|") + "\n")
+            f.write(website + "," + headline.replace(",", "|") + "," + link + "\n")
 
     # check for Guardian
     if index == 3:
 
-        # grab each headline
+        # grab each headline container
         containers = soupPage.findAll("h3", {"class":"fc-item__title"})
 
-        # write the headline to .csv file
+        # write the headline and link to .csv
         for container in containers:
 
             website = "The Guardian"
@@ -113,15 +131,15 @@ for newspage in newspages:
             except:
                 headline = ""
 
-            f.write(website + "," + headline.replace(",", "|").replace("\n", "") + "\n")
+            f.write(website + "," + headline.replace(",", "|").replace("\n", "") + "," + link + "\n")
 
     # check for RT
     if index == 4:
 
-        # grab each headline
+        # grab each headline container
         containers = soupPage.findAll("strong", {"class":"card__header"})
 
-        # write the headline to .csv file
+        # write the headline and link to .csv
         for container in containers:
 
             website = "RT"
@@ -131,7 +149,7 @@ for newspage in newspages:
             except:
                 headline = ""
 
-            f.write(website + "," + headline.replace(",", "|") + "\n")   
+            f.write(website + "," + headline.replace(",", "|") + "," + link + "\n")   
     
     index +=1
 
