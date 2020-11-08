@@ -1,3 +1,4 @@
+import os
 import datetime
 import urllib.request as request
 from pathlib import Path
@@ -5,10 +6,16 @@ from bs4 import BeautifulSoup as soup
 
 # setup the file
 date = datetime.datetime.now().strftime("%A, %d, %b, %Y")
-filename = Path("Outputs/DailyHeadlines - " + date + ".csv")
+folder = datetime.datetime.now().strftime("%Y %b")
+filepath = Path("Outputs/" + folder)
+
+if not os.path.exists(filepath):
+    os.makedirs(filepath)
+
+filename = Path("Outputs/" + folder + "/DailyHeadlines - " + date + ".csv")
 f = open(filename, "w")
 
-headers = "Website, Headline\n"
+headers = "Website, Headline, Link\n"
 f.write(headers)
 
 # array of websites to scrape
