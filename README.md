@@ -1,6 +1,8 @@
-# HeadlineScraper
- News headline web scraper.
+# Headline Scraper
+ 
+### General Info
+Web scraper that collates the headlines from popular world news sites and places them into .csv format.
 
-Web scraper that collates the headlines from popular world news sites.
-
-Creates a .csv file with today's date.
+### Technologies
+Created with:
+* Python
